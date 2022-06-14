@@ -410,7 +410,7 @@ function Home() {
                 fetch("/api/getLogHistory").then((response) =>
                   response.json().then((data) => {
                     setTestHistory(data);
-                    // console.log(testHistory);
+                    console.log(data);
                   })
                 );
 

@@ -4,7 +4,7 @@ import TestResults from "./TestResults";
 import { Link } from "react-router-dom";
 import ColoredCircle from "./ColoredCircle";
 
-const Table = ({ col, rows, stuff }) => {
+const Table = ({}) => {
   const [isClicked, setIsClicked] = useState(false);
   const [log, setLog] = useState();
   let logDir = "";
@@ -17,6 +17,14 @@ const Table = ({ col, rows, stuff }) => {
   const [isViewReport, setIsViewReport] = useState(false);
   const [isError, setIsError] = useState(false);
   const [data, setData] = useState();
+
+  useEffect(() => {
+    fetch("/api/getLogHistory").then((response) =>
+      response.json().then((data) => {
+        setTestHistory(data);
+      })
+    );
+  }, []);
 
   // if (rows) {
   //   setRow(row);
@@ -175,37 +183,19 @@ const Table = ({ col, rows, stuff }) => {
   //console.log(Object.values(rows));
   return (
     <div align='center'>
-      {console.log(rows)}
       <br />
       <div align='center'>
         <Link to='/home'>Back to testing environment</Link>
       </div>
       <br />
-      <div align='center'>
-        <button
-          onClick={() => {
-            fetch("/api/getLogHistory").then((response) =>
-              response
-                .json()
-                .then((data) => {
-                  setTestHistory(data);
-                  console.log(testHistory);
-                })
-                .then(() => setIsHistoryClicked(true))
-            );
-          }}
-        >
-          View Test History
-        </button>
-      </div>
-      {isHistoryClicked && (
-        <DataTable
-          columns={columns}
-          data={Object.values(testHistory)}
-          pagination
-        />
-      )}
+      {/* {isHistoryClicked && (
 
+      )} */}
+      <DataTable
+        columns={columns}
+        data={Object.values(testHistory)}
+        pagination
+      />
       {isClicked && (
         <div>
           <TestResults backendData={row} />
