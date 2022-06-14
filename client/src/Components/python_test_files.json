@@ -1,0 +1,7 @@
+[
+    "run_core_tests.py",
+    "run_topology_tests.py",
+    "run_federation_tests.py",
+    "run_plugin_tests.py",
+    "run_unit_tests.py"
+]

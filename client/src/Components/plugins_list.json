@@ -1,0 +1,11 @@
+[
+    "irods_auth_plugin_kerberos",
+    "irods_rule_engine_plugin_audit_ampq",
+    "irods_microservice_plugins_curl",
+    "irods_resource_plugin_s3",
+    "irods_capability_indexing",
+    "irods_rule_engine_plugin_logica_quotas",
+    "irods_rule_engine_plugin_metadata_guard",
+    "irods_rule_engine_plugin_python",
+    "irods_capability_storage_tiering"
+]
