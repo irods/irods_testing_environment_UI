@@ -2,13 +2,6 @@ import { existsSync, readFile, writeFile } from "node:fs";
 import { exec, execSync, spawnSync } from "node:child_process";
 import { raw } from "express";
 
-// import express from './node_modules/express/index'
-// import * as cors from './node_modules/@types/cors/index'
-// import { module } from 'browserify/lib/builtins'
-// const app = express()
-// const cors = require('cors')
-//import shell from 'shelljs'
-
 let proc;
 const dir = "./irods_testing_environment";
 export async function runTest(
@@ -31,7 +24,6 @@ export async function runTest(
       }
     );
   }
-  // pip3 install virtualenv
 
   const setupCommand =
     "pip3 install virtualenv;" +
@@ -68,39 +60,15 @@ export async function runTest(
   else
     testCommand +=
       testsExec + projectDir + setContainers + irodsVers + verbosity + ";";
-  //const demoCommand = 'python -c "import logging, sys; logging.basicConfig(handlers = [logging.StreamHandler(sys.stderr),logging.StreamHandler(sys.stdout)]); logging.warning(\'my text\');";'
-  //const demoOut = 'python -c "import logging, sys; logging.basicConfig(handlers = [logging.StreamHandler(sys.stdout)]); logging.warning(\'my text\');"'
-  // 'python -c "print(\'hello world\')"'
-  // python -c ‘import logging; logging.info(\’my text\’)’
 
   var res;
 
-  // proc = exec(setupCommand + testCommand
-  // //   , (error, stdout, stferr) => {
-  // //   res = stdout
-  // //   console.log(typeof res === 'string')
-  // //   console.log(res)
-  // // }
-  // )
-
   return setupCommand + testCommand;
 }
-// const setupCommand = 'pip3 install virtualenv;' + 'virtualenv -p python3 /tmp/venv;'+'source /tmp/venv/bin/activate;'+'pip install docker-compose GitPython;'+'cd irods_testing_environment;'
-// const testCommand = 'python run_core_tests.py --tests test_ils test_imv --project-dir=projects/ubuntu-18.04/ubuntu-18.04-postgres-10.12 -v'
-
-// let res = shell.exec(setupCommand+testCommand)
 
 export function stopServer() {
   proc.kill();
 }
-
-export function testls() {
-  return exec("ls");
-}
-
-// export function getLogFiles() {
-
-// }
 
 export function testResParser(rawRes) {
   let beg = "==== begin test run results ====\n";

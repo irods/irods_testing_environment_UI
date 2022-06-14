@@ -4,7 +4,7 @@ import { readFile, writeFile } from "fs";
 import cors from "cors";
 
 const port = 3000;
-import { runTest, storeTests, testls, testResParser } from "./setup_ssh.mjs";
+import { runTest, storeTests, testResParser } from "./test_helpers.mjs";
 import { error } from "console";
 import { stdin, stdout } from "process";
 import { exec } from "child_process";
@@ -21,27 +21,47 @@ let subprocess;
 let proc;
 let directory;
 
-app.get("/", (req, res) => {
+// Standard page of API, not real usecase
+app.get("/api", (req, res) => {
   res.writeHead(200);
   res.write("Home page of API");
 });
 
+// API CALL: /api/cancel
+// DESCRIPTION
+// Kills process of running test
+// Be aware that at times, it takes a while
+// Since a process will not entirely be killed
+// Until every subprocess is also killed.
 app.get("/api/cancel", (req, res) => {
   proc.kill();
   return res.status(200).json({ Results: "Cancelled" });
 });
 
+// API CALL: /api/getLogHistory
+// DESCRIPTION
+// Grabs all test results that are stored in test_history.json
+// Returns a json object of the test history
 app.get("/api/getLogHistory", (req, res) => {
   readFile("test_history.json", "utf-8", (err, data) => {
     res.send(JSON.parse(data));
   });
 });
 
+// API CALL: /api/setDir/:file
+// DESCRIPTION
+// Sets the directory variable (declared in top of file)
+// To the file parameter
 app.get("/api/setDir/:file", (req, res) => {
   directory = req.params.file.replace(/ForwardSlash/g, "/");
   res.send(200);
 });
 
+// API CALL: /api/getFile/:file
+// DESCRIPTION
+// Uses file parameter (.xml or .out extension)
+// And returns contents of file
+// File should always be valid paths
 app.get("/api/getFile/:file", (req, res) => {
   let file = req.params.file.replace(/ForwardSlash/g, "/");
   console.log(file);
@@ -53,6 +73,17 @@ app.get("/api/getFile/:file", (req, res) => {
   });
 });
 
+// API CALL: /api/getLog
+// DESCRIPTION
+// Uses global variable of directory
+// To find paths of xml/output files
+// The method uses a nested try-catch block
+// The first attempts to check the directory of
+// "/test-reports", which is used in core and
+// Federation tests. If path fails, attempts to
+// Find files that uses "junits", which is used
+// In unit tests.
+// Returns array of log paths, or error result.
 app.get("/api/getLog", (req, res) => {
   try {
     console.log(directory);
@@ -94,6 +125,13 @@ app.get("/api/getLog", (req, res) => {
   }
 });
 
+// API CALL: "/api/:pythonFile/:tests/:osVersion/:directory/:irodsVersion/:verbosity/:catalog/:containers/:versionOrDir"
+// DESCRIPTION
+// Uses all the inputs provided in the testing environment
+// To run and execute the user's test(s).
+// Will also write to test_history.json the test results and
+// Populate the results with time, test ran, python test file, platform used, and results
+// Returns results of test
 app.get(
   "/api/:pythonFile/:tests/:osVersion/:directory/:irodsVersion/:verbosity/:catalog/:containers/:versionOrDir",
   (req, res) => {
@@ -161,16 +199,12 @@ app.get(
               JSON.stringify(newjson, null, 2),
               "utf-8",
               () => {
-                //console.log(JSON.stringify(newjson, null, 2));
                 directory = finalres["Log File"];
 
                 return res.status(200).json({ data: finalres });
               }
             );
           });
-          // directory = finalres['Log File']
-
-          // return res.status(200).json({"data": finalres})
         });
       })
     );
