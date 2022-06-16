@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import TestResults from "./TestResults";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import ColoredCircle from "./ColoredCircle";
 
 const Table = ({}) => {
@@ -17,6 +17,8 @@ const Table = ({}) => {
   const [isViewReport, setIsViewReport] = useState(false);
   const [isError, setIsError] = useState(false);
   const [data, setData] = useState();
+  const [rerun, setRerun] = useState("");
+  const [isRerun, setIsRerun] = useState(false);
 
   useEffect(() => {
     fetch("/api/getLogHistory").then((response) =>
@@ -86,6 +88,42 @@ const Table = ({}) => {
           )}
         </div>
       );
+  };
+
+  let navigate = useNavigate();
+  const routeChange = (pythonFile, tests, platform, database, command) => {
+    let testCommand = command.split(";");
+    testCommand = testCommand[testCommand.length - 2].split(" ");
+    let verbosity = testCommand[testCommand.length - 1];
+    let containers;
+    let irods;
+    testCommand.forEach((arg) => {
+      if (arg.includes("--concurrent-test-executor-count=")) containers = arg;
+      if (arg.includes("--irods-package-version=")) irods = arg;
+    });
+    irods = irods.split("=");
+    let flag = irods[0];
+    let version = irods[1].split("-")[0];
+    version = version.replace("/", /ForwardSlash/g);
+    containers = containers.substring(containers.indexOf("=") + 1);
+    let path =
+      `/home/` +
+      pythonFile +
+      "/" +
+      tests +
+      "/" +
+      platform +
+      "/" +
+      database +
+      "/" +
+      containers +
+      "/" +
+      flag +
+      "/" +
+      version +
+      "/" +
+      verbosity;
+    navigate(path);
   };
 
   const columns = [
@@ -171,12 +209,33 @@ const Table = ({}) => {
 
             //file.replace(/\//g, "ForwardSlash");
             // console.log(log);
-            return <TestResults backendData={row.results} />;
+            return <TestResults backendData={row.database} />;
           }}
         >
           View Logs
         </button>
       )
+    },
+    {
+      name: "",
+      selector: (row) => {
+        return (
+          <button
+            onClick={() => {
+              routeChange(
+                row.pythonFile,
+                row.tests,
+                row.platform,
+                row.database,
+                row.command
+              );
+            }}
+          >
+            Rerun
+          </button>
+        );
+      },
+      sortable: false
     }
   ];
 
@@ -201,55 +260,6 @@ const Table = ({}) => {
           <TestResults backendData={row} />
         </div>
       )}
-
-      {/* {isClicked && (
-        <div>
-          <br />
-          <button
-            onClick={() => {
-              fetch("api/getLog").then((response) =>
-                response.json().then(
-                  //xmlString => $.parseXML(xmlString)).then
-                  //(
-                  (data) => {
-                    //console.log(row.results["Log File"]);
-                    let output;
-                    if (data["Logs"]) {
-                      output = data["Logs"];
-                      //getLog = true;
-                      // xml = output;
-                      //console.log(xml);
-
-                      setIsViewReport(true);
-                      setIsError(false);
-                      setXmlData(output);
-                      getXml();
-                      // console.log(output);
-                    } else {
-                      setIsError(true);
-                      setIsViewReport(false);
-                      setXmlFile(data["Error"]);
-                    }
-                    // let output = data["Logs"];
-                    // //getLog = true;
-                    // // xml = output;
-                    // //console.log(xml);
-
-                    // setIsViewReport(true);
-                    // setXmlData(output);
-                    // getXml();
-                    // console.log(output);
-
-                    //console.log(xml)
-                  }
-                )
-              );
-            }}
-          >
-            View reports
-          </button>
-        </div>
-      )} */}
 
       {isViewReport && getXml()}
       <br />

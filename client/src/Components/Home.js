@@ -10,9 +10,12 @@ import irods_version from "./irods_version.json";
 import python_test_files from "./python_test_files.json";
 import NumericInput from "react-numeric-input";
 import Table from "./Table";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 function Home() {
+  let { pythonFile, tests, platform, database, verb, conts, flag, vers } =
+    useParams();
+  vers = vers.replace(/ForwardSlash/g, "/");
   const [backendData, setBackendData] = useState({
     "Start Test Result": "",
     "Passed Tests": "",
@@ -24,20 +27,52 @@ function Home() {
   });
   const [isLoading, setLoading] = useState(true);
   const [isClicked, setClick] = useState(false);
-  const [pythonTest, setPythonTest] = useState("");
-  const [selectedTestOptions, setSelectedTestOptions] = useState([]);
+  const [pythonTest, setPythonTest] = useState(pythonFile);
+  const [selectedTestOptions, setSelectedTestOptions] = useState(() => {
+    if (tests) return tests.split(",");
+    else return [];
+  });
   let isTopology = false;
   let provideConcurrencyOption = false;
   const [topologyOption, setTopologyOption] = useState("undefined");
-  const [projectDirectory, setProjectDirectory] = useState([]);
-  const [irodsVersion, setIrodsVersion] = useState("4.2.11");
-  const [verbosity, setVerbosity] = useState("");
+  const [projectDirectory, setProjectDirectory] = useState(() => {
+    if (platform != undefined) return platform + "\\" + database;
+    return "";
+  });
+
+  const [irodsVersion, setIrodsVersion] = useState(() => {
+    if (flag == "--irods-package-version") return vers;
+    else return "4.1.11";
+  });
+  const [verbosity, setVerbosity] = useState(verb);
   const [isCancel, setIsCancel] = useState(false);
-  const [containers, setContainers] = useState(1);
+  const [containers, setContainers] = useState(() => {
+    if (conts) return conts;
+    else return 1;
+  });
   const [testHistory, setTestHistory] = useState({});
-  const [isVersion, setIsVersion] = useState(false);
-  const [isDir, setIsDir] = useState(false);
-  const [packageDir, setPackageDir] = useState();
+  const [isVersion, setIsVersion] = useState(() => {
+    if (flag == "--irods-package-version") return true;
+
+    return false;
+  });
+  const [isDir, setIsDir] = useState(() => {
+    if (flag == "--irods-package-directory") return true;
+
+    return false;
+  });
+  const [packageDir, setPackageDir] = useState(() => {
+    if (flag == "--irods-package-directory") return vers;
+
+    return false;
+  });
+
+  // useEffect(() => {
+  //   effect
+  //   return () => {
+  //     cleanup
+  //   };
+  // }, []);
 
   //const [pythonFileOption, setPythonFileOption] = useState()
 
@@ -99,6 +134,7 @@ function Home() {
           <br />
           <NumericInput
             min={1}
+            placeholder={containers}
             onChange={(num) => setContainers(num)}
             style={{ width: "35%", display: "inline-block", marginLeft: "10%" }}
           />
@@ -135,7 +171,7 @@ function Home() {
 
   let getTestCollections = () => {
     let testCollection = [];
-    switch (pythonTest[0]) {
+    switch (pythonTest) {
       case "run_unit_tests.py":
         testCollection = unit_test_list;
         provideConcurrencyOption = true;
@@ -180,6 +216,7 @@ function Home() {
           Python Test File
           <Multiselect
             isObject={false}
+            selectedValues={[pythonTest]}
             onKeyPressFn={function noRefCheck() {}}
             singleSelect={true}
             onRemove={(item) => {
@@ -187,7 +224,7 @@ function Home() {
             }}
             onSearch={function noRefCheck() {}}
             onSelect={(item) => {
-              setPythonTest(item);
+              setPythonTest(item[0]);
             }}
             options={python_test_files}
           />
@@ -199,6 +236,7 @@ function Home() {
           <Multiselect
             isObject={false}
             onKeyPressFn={function noRefCheck() {}}
+            selectedValues={selectedTestOptions}
             onRemove={(item) => {
               setSelectedTestOptions(item);
             }}
@@ -222,22 +260,22 @@ function Home() {
           Project Directory
           <Multiselect
             isObject={false}
+            selectedValues={[projectDirectory]}
             onKeyPressFn={function noRefCheck() {}}
             onSearch={function noRefCheck() {}}
             singleSelect={true}
             onSelect={(item) => {
-              setProjectDirectory(item);
+              setProjectDirectory(item[0]);
             }}
             options={project_directory_list}
           />
         </div>
-
         <div
           style={{ width: "35%", display: "inline-block", marginLeft: "10%" }}
         >
           Select Flag
           <Multiselect
-            placeholder='Select one'
+            placeholder={flag}
             isObject={false}
             onKeyPressFn={function noRefCheck() {}}
             onSearch={function noRefCheck() {}}
@@ -254,7 +292,6 @@ function Home() {
             options={["--irods-package-directory", "--irods-package-version"]}
           />
         </div>
-
         <div
           style={{ width: "35%", display: "inline-block", marginLeft: "10%" }}
         >
@@ -262,16 +299,16 @@ function Home() {
           Verbosity:
           <Multiselect
             isObject={false}
+            selectedValues={[verbosity]}
             onKeyPressFn={function noRefCheck() {}}
             onSearch={function noRefCheck() {}}
             singleSelect={true}
             onSelect={(item) => {
-              setVerbosity(item);
+              setVerbosity(item[0]);
             }}
             options={["-v", "-vv", "-vvv"]}
           />
         </div>
-
         {isDir && (
           <div
             style={{
@@ -283,13 +320,13 @@ function Home() {
             <br />
             <input
               size='67'
+              placeholder={packageDir}
               onChange={(e) => {
                 setPackageDir(e.target.value);
               }}
             ></input>
           </div>
         )}
-
         {isVersion && (
           <div
             style={{
@@ -300,7 +337,7 @@ function Home() {
           >
             iRODS Version
             <Multiselect
-              placeholder='4.2.11'
+              placeholder={irodsVersion}
               isObject={false}
               onKeyPressFn={function noRefCheck() {}}
               onSearch={function noRefCheck() {}}

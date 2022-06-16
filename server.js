@@ -189,7 +189,8 @@ app.get(
               tests: tests,
               platform: req.params.osVersion,
               database: req.params.directory,
-              results: finalres
+              results: finalres,
+              command: testParam
             };
             time = new Date().toJSON();
             newjson[time] = entry;

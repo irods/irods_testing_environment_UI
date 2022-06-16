@@ -18,6 +18,10 @@ export default function App() {
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='home' element={<Home />} />
+            <Route
+              path='/home/:pythonFile/:tests/:platform/:database/:conts/:flag/:vers/:verb'
+              element={<Home />}
+            />
             <Route path='history' element={<Table />} />
           </Routes>
         </BrowserRouter>
