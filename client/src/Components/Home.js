@@ -15,7 +15,9 @@ import { Link, useParams } from "react-router-dom";
 function Home() {
   let { pythonFile, tests, platform, database, verb, conts, flag, vers } =
     useParams();
-  vers = vers.replace(/ForwardSlash/g, "/");
+  try {
+    vers = vers.replace(/ForwardSlash/g, "/");
+  } catch (error) {}
   const [backendData, setBackendData] = useState({
     "Start Test Result": "",
     "Passed Tests": "",
@@ -42,7 +44,7 @@ function Home() {
 
   const [irodsVersion, setIrodsVersion] = useState(() => {
     if (flag == "--irods-package-version") return vers;
-    else return "4.1.11";
+    else return "4.2.11";
   });
   const [verbosity, setVerbosity] = useState(verb);
   const [isCancel, setIsCancel] = useState(false);
@@ -77,6 +79,7 @@ function Home() {
   //const [pythonFileOption, setPythonFileOption] = useState()
 
   async function getResults(string) {
+    console.log(string);
     const res = await fetch(string, {
       // mode: 'no-cors',
       method: "GET",

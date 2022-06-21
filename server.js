@@ -10,6 +10,7 @@ import { stdin, stdout } from "process";
 import { exec } from "child_process";
 import test_history from "./test_history.json" assert { type: "json" };
 import { readdirSync } from "fs";
+import { json } from "stream/consumers";
 const app = express();
 app.use(
   cors({
@@ -165,7 +166,39 @@ app.get(
     console.log(
       subprocess.then((string) => {
         let testParam = string;
+        let pending;
         console.log(testParam);
+        readFile("test_history.json", "utf-8", (err, data) => {
+          if (err) throw err;
+
+          var jData = [JSON.parse(data)];
+          let newj = {};
+          var i = 1;
+          let time = new Date().toJSON();
+          console.log(jData);
+          jData.forEach((entry) => {
+            newj = entry;
+            i += 1;
+          });
+          pending = time;
+          let row = {
+            time: time,
+            pythonFile: req.params.pythonFile,
+            tests: tests,
+            platform: req.params.osVersion,
+            database: req.params.directory,
+            results: "",
+            command: testParam
+          };
+          newj[time] = row;
+          writeFile(
+            "test_history.json",
+            JSON.stringify(newj, null, 2),
+            "utf-8",
+            () => {}
+          );
+        });
+
         proc = exec(testParam, (error, stdout, stderr) => {
           console.log(stdout);
           console.log(error);
@@ -178,11 +211,11 @@ app.get(
             let newjson = {};
             var i = 1;
             let time = new Date().toJSON();
+            let stamp = "";
             jsonData.forEach((entry) => {
               newjson = entry;
               i += 1;
             });
-
             let entry = {
               time: time,
               pythonFile: req.params.pythonFile,
@@ -192,8 +225,7 @@ app.get(
               results: finalres,
               command: testParam
             };
-            time = new Date().toJSON();
-            newjson[time] = entry;
+            newjson[pending] = entry;
             console.log(entry);
             writeFile(
               "test_history.json",

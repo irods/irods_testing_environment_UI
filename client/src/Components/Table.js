@@ -23,6 +23,7 @@ const Table = ({}) => {
   useEffect(() => {
     fetch("/api/getLogHistory").then((response) =>
       response.json().then((data) => {
+        console.log("FUCK");
         setTestHistory(data);
       })
     );
@@ -158,11 +159,17 @@ const Table = ({}) => {
       selector: (row) => {
         let length = row.tests.length;
         let count = 0;
-        let raw = row.results["Passed Tests"].replace("passed tests:", "");
+        let raw;
+        try {
+          raw = row.results["Passed Tests"].replace("passed tests:", "");
+        } catch (err) {
+          return <ColoredCircle color='yellow' />;
+        }
         row.tests.forEach((test) => {
           if (raw.includes(test)) count++;
         });
         if (count == length) return <ColoredCircle color='green' />;
+        else if (row.results == "") return <ColoredCircle color='yellow' />;
         else return <ColoredCircle color='red' />;
       },
       sortable: false
