@@ -1,6 +1,11 @@
 import Multiselect from "multiselect-react-dropdown";
 import { React, useState } from "react";
 
+// Test Results displays overall results of a test run
+// Will also provide dropdown results to view XML Files
+// Test Results is a component that appears in the home page
+// And history page when a test is finished or view log button is clicked,
+// respectively.
 const TestResults = (backendData) => {
   let getLog = false;
 
@@ -10,10 +15,12 @@ const TestResults = (backendData) => {
   const [isView, setIsView] = useState(false);
   var xml = "";
 
+  // Closes XML file that is currently open
   let closeXml = () => {
     setIsClicked(false);
   };
 
+  // Grabs XML files of a test run
   let getXml = () => {
     let res = <div></div>;
 
@@ -58,39 +65,12 @@ const TestResults = (backendData) => {
                 response.text().then((data) => {
                   setXmlFile(data);
                   setIsView(true);
-                  //console.log(data)
                 })
               );
             }}
             options={getNames()}
           />
-          {/* {xmlData.map((file) => {
-            let name = file.split("/");
-            name = name[name.length - 1];
-            name = name.split(".");
-            if (name[1] == "out") name = name[0];
-            else name = name[2];
-            return (
-              <div>
-                <button
-                  onClick={() => {
-                    //console.log(file)
-                    let fileName = file.replace(/\//g, "ForwardSlash");
-                    //console.log(fileName)
-                    fetch("/api/getFile/" + fileName).then((response) =>
-                      response.text().then((data) => {
-                        setXmlFile(data);
-                        setIsView(true);
-                        //console.log(data)
-                      })
-                    );
-                  }}
-                >
-                  {name} Results
-                </button>
-              </div>
-            );
-          })} */}
+
           {isView && (
             <div>
               {" "}
@@ -127,20 +107,15 @@ const TestResults = (backendData) => {
             response
               .json()
               .then()
-              .then(
-                //xmlString => $.parseXML(xmlString)).then
-                //(
-                (data) => {
-                  let output = data["Logs"];
-                  getLog = true;
-                  xml = output;
-                  console.log(xml);
-                  setIsClicked(true);
-                  setXmlData(output);
-                  getXml();
-                  //console.log(xml)
-                }
-              )
+              .then((data) => {
+                let output = data["Logs"];
+                getLog = true;
+                xml = output;
+                console.log(xml);
+                setIsClicked(true);
+                setXmlData(output);
+                getXml();
+              })
           );
         }}
       >

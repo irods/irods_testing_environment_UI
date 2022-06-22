@@ -12,12 +12,20 @@ import NumericInput from "react-numeric-input";
 import Table from "./Table";
 import { Link, useParams } from "react-router-dom";
 
+// Home page of application
+// Allows user to configure and run a test run
+// Results will appear once a test is ran
+// User can also go to history page and test will
+// Continue to run
 function Home() {
+  // If rerunning test, grabs any parameters that are available
   let { pythonFile, tests, platform, database, verb, conts, flag, vers } =
     useParams();
   try {
     vers = vers.replace(/ForwardSlash/g, "/");
   } catch (error) {}
+
+  // Initializes all the states for configuration
   const [backendData, setBackendData] = useState({
     "Start Test Result": "",
     "Passed Tests": "",
@@ -69,19 +77,11 @@ function Home() {
     return false;
   });
 
-  // useEffect(() => {
-  //   effect
-  //   return () => {
-  //     cleanup
-  //   };
-  // }, []);
-
-  //const [pythonFileOption, setPythonFileOption] = useState()
-
+  // Completes fetch request for running test
+  // Populates results
+  // Prints result onto screen
   async function getResults(string) {
-    console.log(string);
     const res = await fetch(string, {
-      // mode: 'no-cors',
       method: "GET",
       headers: {
         Accept: "application/json"
@@ -89,33 +89,22 @@ function Home() {
     });
     const json = await res.json().then((data) => {
       let res = data.data;
-      //console.log(data.data)
       setBackendData(res);
       console.log(res);
       setLoading(false);
       setClick(false);
       screenRes();
     });
-
-    //console.log(json)
-    // .then(
-    //   response => response.json()
-    // ).then(
-    //   data => {
-    //           setBackendData(data)
-    //           console.log(data)
-    //           setLoading(false)
-    //           setClick(false)
-    //         }
-    // )
   }
 
+  // Prints results onto screen using Test Result Component
   let screenRes = () => {
     if (!isLoading && backendData["Return Code"] !== "") {
       return <TestResults backendData={backendData} />;
     }
   };
 
+  // Gets concurrency input depending on which python file is selected
   let getConcurrency = () => {
     if (provideConcurrencyOption) {
       return (
@@ -124,16 +113,6 @@ function Home() {
         >
           <br />
           Concurrent Containers
-          {/* <Multiselect
-              isObject={false}
-              singleSelect={true}
-            onKeyPressFn={function noRefCheck(){}}
-            onRemove={function noRefCheck(){}}
-            onSearch={function noRefCheck(){}}
-            onSelect={(item) => {
-                setContainers(1)
-            }}
-            options={[1,2,3,4,5,6,7,8,9,10]} /> */}
           <br />
           <NumericInput
             min={1}
@@ -148,6 +127,7 @@ function Home() {
     }
   };
 
+  // Returns a catalog service drop down if a Topology test is selected
   let getTopology = () => {
     if (isTopology)
       return (
@@ -172,6 +152,7 @@ function Home() {
       );
   };
 
+  // Grabs the test collection depending on which python file is selected
   let getTestCollections = () => {
     let testCollection = [];
     switch (pythonTest) {
@@ -200,6 +181,7 @@ function Home() {
     return testCollection;
   };
 
+  // Cancels a test you ran
   let getCancel = () => {
     if (isCancel) return <div>Cancelling Testings...</div>;
   };

@@ -4,6 +4,9 @@ import TestResults from "./TestResults";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import ColoredCircle from "./ColoredCircle";
 
+// Table component is what is rendered for history page
+// Displays test_history.json
+// Can also send parameters to home page to rerun test
 const Table = ({}) => {
   const [isClicked, setIsClicked] = useState(false);
   const [log, setLog] = useState();
@@ -20,26 +23,16 @@ const Table = ({}) => {
   const [rerun, setRerun] = useState("");
   const [isRerun, setIsRerun] = useState(false);
 
+  // Loads log history when page is loading
   useEffect(() => {
     fetch("/api/getLogHistory").then((response) =>
       response.json().then((data) => {
-        console.log("FUCK");
         setTestHistory(data);
       })
     );
   }, []);
 
-  // if (rows) {
-  //   setRow(row);
-  // } else {
-  //   fetch("/api/getLogHistory").then((response) =>
-  //     response.json().then((data) => {
-  //       setRow(data);
-  //       console.log(row);
-  //     })
-  //   );
-  // }
-
+  // Grabs xmls files. Same functionality as located in TestResults.js
   let getXml = () => {
     let res = <div></div>;
 
@@ -91,6 +84,7 @@ const Table = ({}) => {
       );
   };
 
+  // Rerouting to home page and populate states to rerun tests
   let navigate = useNavigate();
   const routeChange = (pythonFile, tests, platform, database, command) => {
     let testCommand = command.split(";");
@@ -127,6 +121,7 @@ const Table = ({}) => {
     navigate(path);
   };
 
+  // Configures columns
   const columns = [
     {
       name: "Time",
@@ -190,32 +185,7 @@ const Table = ({}) => {
             fetch(
               "/api/setDir/" + logDir.replace(/\//g, "ForwardSlash")
             ).then();
-            // fetch("api/getLog").then((response) =>
-            //   response
-            //     .json()
-            //     .then()
-            //     .then(
-            //       //xmlString => $.parseXML(xmlString)).then
-            //       //(
-            //       (data) => {
-            //         console.log(row.results["Log File"]);
-            //         let output = data["Logs"];
-            //         //getLog = true;
-            //         // xml = output;
-            //         //console.log(xml);
-            //         setIsClicked(true);
-            //         setXmlData(output);
-            //         getXml();
-            //         console.log(output);
 
-            //         //console.log(xml)
-            //       }
-            //     )
-            // )
-            // }, 5000);
-
-            //file.replace(/\//g, "ForwardSlash");
-            // console.log(log);
             return <TestResults backendData={row.database} />;
           }}
         >
@@ -246,7 +216,6 @@ const Table = ({}) => {
     }
   ];
 
-  //console.log(Object.values(rows));
   return (
     <div align='center'>
       <br />
@@ -254,9 +223,7 @@ const Table = ({}) => {
         <Link to='/home'>Back to testing environment</Link>
       </div>
       <br />
-      {/* {isHistoryClicked && (
 
-      )} */}
       <DataTable
         columns={columns}
         data={Object.values(testHistory)}
