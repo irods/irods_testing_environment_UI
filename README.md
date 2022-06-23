@@ -38,4 +38,9 @@ The Test History Page includes:
 - Basic test information (tests ran, general pass/failure of test, log directory, etc.)
 - Ability to read XML test reports and location
 
-##
+## Structure
+
+The structure of the application is made of two larger components. The client folder is the React app. It consists of all the UI components and routing logic.
+The second component is server.js that handles all the the requests from the client. Some helpeer functions are defined in test_helpers.mjs to help complete certain requests.
+
+Note: any changes made in the client while the application is running will rerender the application automatically on save. Any changes outside of the client directory will require you to restart the server.

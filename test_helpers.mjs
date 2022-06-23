@@ -4,6 +4,8 @@ import { raw } from "express";
 
 let proc;
 const dir = "./irods_testing_environment";
+
+// Will Create the string to execute the run test
 export async function runTest(
   pythonFile,
   tests,
@@ -14,6 +16,10 @@ export async function runTest(
   containers,
   versionOrDir
 ) {
+  // If the testing environment is not present in the directory
+  // It will clone the repo inorder to install and allow for test runs
+  // Note: not having the testing environment in your directory will have
+  // a slightly longer test run than if it was cloned prior to running tests
   if (!existsSync(dir)) {
     execSync(
       "git clone https://github.com/alanking/irods_testing_environment.git",
@@ -25,6 +31,7 @@ export async function runTest(
     );
   }
 
+  // The setup command sets up the virtual environment
   const setupCommand =
     "pip3 install virtualenv;" +
     "virtualenv -p python3 /tmp/venv;" +
@@ -61,15 +68,12 @@ export async function runTest(
     testCommand +=
       testsExec + projectDir + setContainers + irodsVers + verbosity + ";";
 
-  var res;
-
+  // Concatenates the setup command and test command to send back to server to execute test
   return setupCommand + testCommand;
 }
 
-export function stopServer() {
-  proc.kill();
-}
-
+// Parses the test results to server
+// Results are then displayed on page and stored in test_history.json
 export function testResParser(rawRes) {
   let beg = "==== begin test run results ====\n";
   let end = "==== end of test run results ====\n";
@@ -102,35 +106,4 @@ export function testResParser(rawRes) {
   };
 
   return res;
-}
-
-export function storeTests(tests, results) {
-  readFile("./test_history.json", "utf-8", (err, data) => {
-    if (err) throw err;
-
-    var jsonData = [JSON.parse(data)];
-    let newjson = {};
-    var i = 1;
-    let time = new Date().toJSON();
-    jsonData.forEach((entry) => {
-      newjson = entry;
-      i += 1;
-    });
-
-    let entry = {
-      tests: tests,
-      results: results
-    };
-    time = new Date().toJSON();
-    newjson[time] = entry;
-
-    writeFile(
-      "./test_history.json",
-      JSON.stringify(newjson, null, 2),
-      "utf-8",
-      () => {
-        console.log(JSON.stringify(newjson, null, 2));
-      }
-    );
-  });
 }

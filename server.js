@@ -4,7 +4,7 @@ import { readFile, writeFile } from "fs";
 import cors from "cors";
 
 const port = 3000;
-import { runTest, storeTests, testResParser } from "./test_helpers.mjs";
+import { runTest, testResParser } from "./test_helpers.mjs";
 import { error } from "console";
 import { stdin, stdout } from "process";
 import { exec } from "child_process";
