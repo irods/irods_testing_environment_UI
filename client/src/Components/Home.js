@@ -22,7 +22,7 @@ function Home() {
   let { pythonFile, tests, platform, database, verb, conts, flag, vers } =
     useParams();
   try {
-    vers = vers.replace(/ForwardSlash/g, "/");
+    vers = vers.replace(/ForwardSlash/, "/");
   } catch (error) {}
 
   // Initializes all the states for configuration

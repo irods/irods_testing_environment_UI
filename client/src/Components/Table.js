@@ -92,14 +92,19 @@ const Table = ({}) => {
     let verbosity = testCommand[testCommand.length - 1];
     let containers;
     let irods;
+    console.log(testCommand);
     testCommand.forEach((arg) => {
       if (arg.includes("--concurrent-test-executor-count=")) containers = arg;
-      if (arg.includes("--irods-package-version=")) irods = arg;
+      if (
+        arg.includes("--irods-package-version=") ||
+        arg.includes("--irods-package-directory=")
+      )
+        irods = arg;
     });
     irods = irods.split("=");
     let flag = irods[0];
     let version = irods[1].split("-")[0];
-    version = version.replace("/", /ForwardSlash/g);
+    version = version.replace("/", "ForwardSlash");
     containers = containers.substring(containers.indexOf("=") + 1);
     let path =
       `/home/` +
